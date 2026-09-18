@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>고양이와 바다 · 작은 낚시 일기</title><style>
+*{box-sizing:border-box}body{margin:0;overflow:hidden;background:#95d3d2;color:#183d40;font-family:system-ui,-apple-system,'Apple SD Gothic Neo',sans-serif}canvas#world{position:fixed;inset:0;width:100%;height:100%;touch-action:none}button{font:inherit;cursor:pointer;border:0}button:disabled{opacity:.6;cursor:default}.hud{position:fixed;inset:0;pointer-events:none;padding:28px;display:flex;flex-direction:column;justify-content:space-between}.top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.brand small{letter-spacing:3px;font-size:10px;font-weight:800}.brand h1{font-size:27px;font-weight:650;margin:8px 0 5px;letter-spacing:-1px}.brand p{margin:0;font-size:12px}.tools{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.pill{pointer-events:auto;background:#fffcf0e8;border:1px solid #ffffff8c;padding:11px 15px;border-radius:25px;box-shadow:0 3px 15px #183d4010;font-size:12px}.bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:15px}.note{max-width:260px;background:#fdfbedc9;padding:14px 18px;border-radius:16px;font-size:12px;line-height:1.7}.actions{text-align:center;pointer-events:auto}.primary{background:#234e48;color:#fffbed;padding:17px 32px;border-radius:32px;box-shadow:0 8px 25px #12393035;font-weight:700;font-size:16px}.primary.bite{background:#df753f;animation:pulse .6s infinite alternate}.hint{font-size:11px;margin-top:9px;background:#fff9d8bb;border-radius:15px;padding:5px 12px}.catstat{font-size:12px;text-align:right;background:#fffcf0d9;padding:14px 18px;border-radius:16px}.catstat strong{display:block;font-size:16px;margin-bottom:5px}.cross{position:fixed;left:50%;top:48%;width:6px;height:6px;border:1px solid #fffff5b0;border-radius:50%;pointer-events:none}.toast{position:fixed;top:24%;left:50%;transform:translateX(-50%);background:#234e48ed;color:white;padding:12px 22px;border-radius:25px;font-size:14px;text-align:center;max-width:90%;pointer-events:none;opacity:0;transition:opacity .3s}.toast.show{opacity:1}.shade{position:fixed;inset:0;background:#183d4044;backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:18px}.shade.open{display:flex}.card{background:#fffbed;width:390px;max-width:100%;border-radius:26px;padding:25px;box-shadow:0 24px 100px #113d4033;max-height:90dvh;overflow:auto;text-align:center}.eyebrow{font-size:10px;letter-spacing:3px;color:#6b8475;font-weight:800}.card h2{margin:8px 0;font-size:28px;letter-spacing:-1px}.card p{font-size:14px;line-height:1.8;color:#56716a}.fishart{width:100%;height:155px;background:#e6eee0;border-radius:16px;margin:14px 0}.row{display:flex;gap:8px;justify-content:center}.row button{padding:13px 16px;border-radius:16px;background:#e8eadc;flex:1;font-size:13px}.row .green{background:#234e48;color:white}.rare{color:#bc7920}.list{text-align:left;margin:18px 0}.entry{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #dbe1d2;font-size:13px}.entry button{background:#234e48;color:white;border-radius:12px;padding:7px 12px}.close{background:transparent;font-size:12px;padding:10px;color:#56716a}.footer{font-size:10px!important;color:#7e8d80!important}.intro{position:fixed;inset:0;background:#163b3a45;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px)}.intro .card{width:430px}.intro h2{font-size:36px}.intro .primary{margin:10px 0}.intro p{margin:10px 0}@keyframes pulse{to{transform:scale(1.05)}}@media(max-width:620px){.hud{padding:17px}.brand h1{font-size:22px}.brand p{display:none}.tools{max-width:185px;gap:5px}.pill{padding:9px 11px;font-size:10px}.note{display:none}.catstat{padding:10px;font-size:10px}.catstat strong{font-size:13px}.primary{padding:16px 24px}.bottom{gap:8px}.actions{text-align:left}.hint{font-size:10px}.card{padding:22px}}
+</style></head><body>
+<canvas id="world" aria-label="로우폴리 바다 낚시 게임. 드래그 또는 방향키로 시점 조절"></canvas><div class="cross"></div>
+<div class="hud"><div class="top"><div class="brand"><small>A LITTLE SEASIDE STORY</small><h1>고양이와 바다</h1><p>서두르지 않아도 좋은, 우리의 작은 부두.</p></div><div class="tools"><button class="pill" id="bucketBtn">양동이 · 0</button><button class="pill" id="bookBtn">도감 · 0 / 9</button><button class="pill" id="tiltBtn">틸팅 켜기</button><button class="pill" id="soundBtn">소리 켜짐</button><button class="pill" id="resetBtn">시점 리셋</button></div></div><div class="bottom"><div class="note">드래그 / 방향키로 둘러보기<br>찌가 흔들리면 낚아채세요.<br>고양이를 바라보면 눈을 맞춰요.</div><div class="actions"><button id="fishBtn" class="primary">낚싯줄 던지기</button><div class="hint" id="hint">클릭 또는 스페이스 · 느긋하게 낚시하기</div></div><div class="catstat"><strong>고등어 씨</strong><span id="catMood">오늘도 생선 기다리는 중</span><br><span id="feedCount">먹은 물고기 0마리</span></div></div></div>
+<div class="toast" id="toast" role="status"></div>
+<div class="shade" id="catchModal"><section class="card"><div class="eyebrow" id="rarity">TODAY’S CATCH</div><canvas class="fishart" id="fishArt" width="640" height="310"></canvas><h2 id="fishName"></h2><p id="fishDesc"></p><div class="row"><button id="keepBtn">양동이에 넣기</button><button class="green" id="feedBtn">고양이에게 주기</button></div><p class="footer">게임 속 먹이는 안전한 가상 먹이입니다.<br>실제 고양이에게 복어·생선 가시·날생선을 주지 마세요.</p></section></div>
+<div class="shade" id="listModal"><section class="card"><div class="eyebrow">OUR SEASIDE COLLECTION</div><h2 id="listTitle"></h2><div class="list" id="list"></div><button class="close" id="closeList">바다로 돌아가기 ↗</button></section></div>
+<div class="intro" id="intro"><section class="card"><div class="eyebrow">SLOW DAYS, HAPPY CAT</div><h2>고양이와 바다</h2><p>작은 부두, 푸른 물결,<br>그리고 흰 가슴의 초록 눈 고등어 씨.</p><p>낚싯줄을 던지고 입질이 오면 낚아채세요.<br>아홉 종류의 바다 친구를 만나고<br>양동이에 담거나 고양이에게 선물하세요.</p><button class="primary" id="startBtn">느긋한 하루 시작하기</button><p class="footer">드래그 / 방향키로 상하좌우 시점 조절 · 이동 없음<br>모바일은 ‘틸팅 켜기’로 기기 기울이기 지원<br>효과음은 시작 버튼을 누르면 활성화됩니다.<br>진행 상황은 가능한 경우 이 브라우저에 자동 저장됩니다.</p></section></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id), canvas=$('world'),ctx=canvas.getContext('2d');
+const fish=[
+{name:'전갱이',weight:19,color:'#89acb2',desc:'은빛 몸 옆에 단단한 비늘인 모비늘이 줄지어 있어요. 무리를 지어 연안과 먼바다를 오갑니다.'},
+{name:'흰동가리',weight:13,color:'#ee8c46',desc:'주황빛 몸에 하얀 띠가 있는 작은 물고기. 말미잘과 서로 도움을 주고받으며 살아가요.'},
+{name:'복어',weight:13,color:'#c7bc77',desc:'위협을 느끼면 몸을 부풀려 자신을 지켜요. 독이 있는 종류가 많아 실제로 고양이에게 주면 안 돼요.'},
+{name:'오징어',weight:13,color:'#dba69b',desc:'물고기가 아니라 두족류예요. 여덟 개의 팔과 두 개의 긴 촉완으로 먹이를 붙잡고 물을 뿜어 이동해요.'},
+{name:'넙치',weight:13,color:'#978d65',desc:'모래 바닥에 몸을 숨기는 납작한 물고기예요. 자라면서 두 눈이 몸의 왼쪽으로 모여요.'},
+{name:'멸치',weight:14,color:'#b4d2d8',desc:'작은 몸으로 커다란 무리를 이루어요. 플랑크톤을 먹으며 바다 먹이그물에서 중요한 역할을 해요.'},
+{name:'농어',weight:11,color:'#8ba9a2',desc:'은회색 몸에 큰 입을 가진 사냥꾼. 연안과 강 하구에서 작은 물고기와 갑각류를 먹어요.'},
+{name:'돌돔',weight:3,color:'#91a7a9',desc:'단단한 이빨로 조개와 성게 등을 먹어요. 어린 개체의 몸에 선명한 검은 세로줄이 나타나요.',rare:true},
+{name:'청새치',weight:1,color:'#548dba',desc:'길고 뾰족한 위턱과 날렵한 몸을 가진 큰 물고기예요. 따뜻한 먼바다를 빠르게 헤엄치는 희귀한 손님!',rare:true}
+];
+let bag=Array(9).fill(0),seen=Array(9).fill(false),fed=0;try{const s=JSON.parse(localStorage.getItem('seaside-cat-v1'));if(s&&s.bag?.length===9&&s.seen?.length===9){bag=s.bag.map(n=>Math.max(0,Number(n)||0));seen=s.seen.map(Boolean);fed=Number(s.fed)||0}}catch(e){}
+function save(){try{localStorage.setItem('seaside-cat-v1',JSON.stringify({bag,seen,fed}))}catch(e){}update()}
+function update(){$('bucketBtn').textContent='양동이 · '+bag.reduce((a,b)=>a+b,0);$('bookBtn').textContent='도감 · '+seen.filter(Boolean).length+' / 9';$('feedCount').textContent='먹은 물고기 '+fed+'마리';$('catMood').textContent=fed?['입맛 다시는 중','꼬리가 살랑살랑','당신이 제일 좋아'][fed%3]:'오늘도 생선 기다리는 중'}update();
+let toastTimer;function toast(s){$('toast').textContent=s;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),3000)}
+let W=0,H=0,DPR=1;function resize(){DPR=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*DPR;canvas.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0)}addEventListener('resize',resize);resize();
+let yaw=.09,pitch=-.10,drag=null,started=false,tilt=false,base=null;const keys={};
+canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(!drag)return;yaw-=(e.clientX-drag.x)*.004;pitch+=(e.clientY-drag.y)*.003;clampView();drag={x:e.clientX,y:e.clientY}});canvas.addEventListener('pointerup',()=>drag=null);canvas.addEventListener('pointercancel',()=>drag=null);
+function clampView(){yaw=Math.max(-.95,Math.min(1.1,yaw));pitch=Math.max(-.65,Math.min(.48,pitch))}
+$('resetBtn').onclick=()=>{yaw=.09;pitch=-.1;base=null};
+$('tiltBtn').onclick=async()=>{if(tilt){tilt=false;$('tiltBtn').textContent='틸팅 켜기';return}try{if(!window.DeviceOrientationEvent)throw Error();if(typeof DeviceOrientationEvent.requestPermission==='function'){const p=await DeviceOrientationEvent.requestPermission();if(p!=='granted')throw Error()}tilt=true;base=null;$('tiltBtn').textContent='틸팅 끄기';toast('편한 자세로 기기를 잡고 천천히 기울여 주세요.');setTimeout(()=>{if(tilt&&!base)toast('센서 응답이 없어요. 드래그를 사용하거나 HTTPS 환경에서 열어 주세요.')},3500)}catch(e){toast('기울이기를 사용할 수 없어요. 드래그로 둘러봐 주세요.')}};
+addEventListener('deviceorientation',e=>{if(!tilt||drag||e.beta===null||e.gamma===null)return;if(!base){base={b:e.beta,g:e.gamma,y:yaw,p:pitch};return}yaw=yaw*.88+(base.y+(e.gamma-base.g)*.017)*.12;pitch=pitch*.88+(base.p-(e.beta-base.b)*.013)*.12;clampView()});
+addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space'].includes(e.code)&&!['BUTTON'].includes(document.activeElement.tagName)){e.preventDefault();keys[e.code]=true;if(e.code==='Space'&&!e.repeat)act()}});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>Object.keys(keys).forEach(k=>keys[k]=false));
+$('startBtn').onclick=()=>{audioReady();started=true;$('intro').style.display='none';toast('고등어 씨와 함께, 첫 낚시를 시작해 볼까요?')};
+let state='idle',deadline=0,current=-1,feedStart=-100,feedFish=0,autoCat=0,castStart=-100,splashStart=-100,headAngle=Math.PI;
+let ac=null,muted=false;
+function audioReady(){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}catch(e){}}
+function tone(f,end,dur,vol=.1,delay=0,type='sine'){if(!ac||muted)return;const now=ac.currentTime+delay,o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,now);o.frequency.exponentialRampToValueAtTime(end,now+dur);g.gain.setValueAtTime(.001,now);g.gain.exponentialRampToValueAtTime(vol,now+.025);g.gain.exponentialRampToValueAtTime(.001,now+dur);o.connect(g);g.connect(ac.destination);o.start(now);o.stop(now+dur+.03)}
+function noise(dur,vol,freq,delay=0){if(!ac||muted)return;const b=ac.createBuffer(1,Math.ceil(ac.sampleRate*dur),ac.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1);const a=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain(),t=ac.currentTime+delay;a.buffer=b;f.type='bandpass';f.frequency.setValueAtTime(freq,t);f.frequency.exponentialRampToValueAtTime(freq*.35,t+dur);g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(vol,t+.035);g.gain.exponentialRampToValueAtTime(.001,t+dur);a.connect(f);f.connect(g);g.connect(ac.destination);a.start(t);a.stop(t+dur)}
+function sfx(name){audioReady();if(name==='cast')noise(.42,.22,2200);if(name==='splash'){noise(.5,.32,850);tone(180,58,.24,.18);tone(400,150,.16,.06,.12)}if(name==='catch'){tone(880,880,.38,.12);tone(1320,1320,.7,.09,.13);tone(1760,1760,.6,.05,.24)}if(name==='feed'){tone(530,820,.19,.10,0,'triangle');tone(820,370,.52,.1,.16,'triangle');tone(1060,740,.48,.028,.2);for(let i=0;i<9;i++){let d=1.5+i*.33;tone(175,78,.11,.11,d);noise(.10,.12,800,d+.06);tone(290,140,.08,.045,d+.12)}}}
+$('soundBtn').onclick=()=>{audioReady();muted=!muted;$('soundBtn').textContent=muted?'소리 꺼짐':'소리 켜짐'};
+
+function modalOpen(){return $('catchModal').classList.contains('open')||$('listModal').classList.contains('open')}
+function setState(s){state=s;$('fishBtn').classList.toggle('bite',s==='bite');$('fishBtn').textContent=({idle:'낚싯줄 던지기',cast:'낚싯줄 던지는 중…',wait:'입질 기다리는 중…',bite:'지금! 낚아채기',caught:'물고기를 만났어요',feed:'냠냠, 맛있다!'}[s]);$('fishBtn').disabled=['cast','wait','caught','feed'].includes(s);$('hint').textContent=s==='bite'?'지금 클릭 / 스페이스!':s==='wait'?'찌가 흔들릴 때까지 잠깐 기다려 주세요':'클릭 또는 스페이스 · 느긋하게 낚시하기'}
+function act(){if(!started||modalOpen())return;if(state==='idle'){audioReady();setState('cast');castStart=performance.now()/1000;sfx('cast')}else if(state==='bite'){let r=Math.random()*100;current=8;for(let i=0;i<fish.length;i++){r-=fish[i].weight;if(r<0){current=i;break}}seen[current]=true;save();sfx('catch');setState('caught');const f=fish[current];$('fishName').textContent=f.name;$('fishDesc').textContent=f.desc;$('rarity').textContent=f.rare?'✦ RARE CATCH · 희귀한 만남':'TODAY’S CATCH · 오늘의 물고기';$('rarity').classList.toggle('rare',!!f.rare);drawFish(current);$('catchModal').classList.add('open')}}
+$('fishBtn').onclick=act;$('keepBtn').onclick=()=>{if(current<0)return;bag[current]++;save();$('catchModal').classList.remove('open');toast(fish[current].name+'를 양동이에 담았어요.');current=-1;setState('idle')};
+function feed(i){sfx('feed');feedFish=i;fed++;save();feedStart=performance.now()/1000;autoCat=feedStart+5;setState('feed');toast('고등어 씨: 냐옹! ♡');$('catchModal').classList.remove('open');$('listModal').classList.remove('open');current=-1}
+$('feedBtn').onclick=()=>{if(current>=0)feed(current)};
+function showList(book){if(state!=='idle'){toast('지금 낚시나 먹이 주기를 마친 뒤 열어 주세요.');return}$('listTitle').textContent=book?'바다 친구 도감':'나의 양동이';const el=$('list');el.replaceChildren();fish.forEach((f,i)=>{if(!book&&!bag[i])return;const row=document.createElement('div');row.className='entry';const text=document.createElement('span');text.textContent=book?(seen[i]?f.name+(f.rare?' ✦':''):'??? · '+(f.rare?'희귀':'미발견')):f.name+' × '+bag[i];row.append(text);if(book&&seen[i]){row.style.flexWrap='wrap';const p=document.createElement('p');p.style.cssText='font-size:12px;margin:5px 0 0;width:100%;text-align:left';p.textContent=f.desc;row.append(p)}if(!book){const b=document.createElement('button');b.textContent='먹이 주기';b.onclick=()=>{if(bag[i]>0){bag[i]--;feed(i)}};row.append(b)}el.append(row)});if(!el.children.length)el.textContent='아직 비어 있어요. 첫 물고기를 만나러 가볼까요?';$('listModal').classList.add('open')}
+$('bucketBtn').onclick=()=>showList(false);$('bookBtn').onclick=()=>showList(true);$('closeList').onclick=()=>$('listModal').classList.remove('open');
+function drawFish(i){const c=$('fishArt'),g=c.getContext('2d');g.clearRect(0,0,640,310);g.fillStyle='#deeadc';g.fillRect(0,0,640,310);g.save();g.translate(320,160);fishShape(g,i,1.6);g.restore()}
+function fishShape(g,i,s){g.save();g.scale(s,s);const f=fish[i];function p(points,col){g.fillStyle=col;g.beginPath();points.forEach((v,k)=>k?g.lineTo(...v):g.moveTo(...v));g.closePath();g.fill()}if(i===3){p([[-65,0],[-10,-35],[52,-25],[65,0],[52,25],[-10,35]],f.color);p([[-45,0],[15,-54],[12,54]],'#c78981');g.strokeStyle='#bf8079';g.lineWidth=5;for(let j=0;j<8;j++){g.beginPath();g.moveTo(50,-20+j*6);g.quadraticCurveTo(100,Math.sin(j)*32,105+j*3,-27+j*8);g.stroke()}}else{let h=i===2?51:i===4?46:i===5?17:32;p([[-72,0],[-112,-35],[-105,35]],f.color);p([[-78,0],[-46,-h],[28,-h*.85],[74,-5],[78,7],[25,h],[-44,h*.8]],f.color);p([[-47,-h],[28,-h*.85],[60,-10],[-5,-4],[-72,0]],i===1?'#f9a05b':i===8?'#3f6d99':'#ffffff35');p([[-22,-h],[-7,-h-25],[24,-h*.85]],f.color);p([[-3,0],[-27,24],[16,18]],'#ffffff55');if(i===1||i===7){g.strokeStyle=i===1?'#fff7df':'#3f5357';g.lineWidth=i===1?12:8;for(let x=-40;x<45;x+=i===1?36:22){g.beginPath();g.moveTo(x,-h*.78);g.lineTo(x+8,h*.7);g.stroke()}}if(i===2||i===4){g.fillStyle='#655e4190';for(let j=0;j<18;j++){g.beginPath();g.arc(-46+(j%6)*17,-22+Math.floor(j/6)*20,2.7,0,7);g.fill()}}if(i===8)p([[54,-6],[142,-13],[70,4]],'#5086a8')}
+g.fillStyle='#223d40';g.beginPath();g.arc(i===3?44:52,-8,5,0,7);g.fill();g.fillStyle='white';g.beginPath();g.arc(i===3?45:53,-10,1.6,0,7);g.fill();g.restore()}
+// Tiny dependency-free low-poly renderer. Camera position is fixed; only its angles change.
+let polys=[],lines=[],modelTransform=null;
+function worldPoint(p){if(!modelTransform)return p;const {x,y,z,a}=modelTransform;return [x+p[0]*Math.cos(a)+p[2]*Math.sin(a),y+p[1],z-p[0]*Math.sin(a)+p[2]*Math.cos(a)]}const eye=[0,2.6,-3.8];
+function project(p){let x=p[0]-eye[0],y=p[1]-eye[1],z=p[2]-eye[2];let a=x*Math.cos(yaw)-z*Math.sin(yaw),b=x*Math.sin(yaw)+z*Math.cos(yaw);let yy=y*Math.cos(pitch)-b*Math.sin(pitch),zz=y*Math.sin(pitch)+b*Math.cos(pitch);const f=Math.min(W,H)*.92;return {x:W/2+a*f/zz,y:H*.48-yy*f/zz,z:zz}}
+function poly(ps,col){const v=ps.map(p=>project(worldPoint(p)));if(v.some(p=>p.z<.12))return;polys.push({v,col,z:v.reduce((s,p)=>s+p.z,0)/v.length})}
+function shade(c,k){let n=parseInt(c.slice(1),16);return 'rgb('+[n>>16,(n>>8)&255,n&255].map(v=>Math.max(0,Math.min(255,Math.round(v*k)))).join(',')+')'}
+function box(x,y,z,a,b,c,col){const v=[[x-a,y-b,z-c],[x+a,y-b,z-c],[x+a,y+b,z-c],[x-a,y+b,z-c],[x-a,y-b,z+c],[x+a,y-b,z+c],[x+a,y+b,z+c],[x-a,y+b,z+c]];[[0,1,2,3],[4,7,6,5],[3,2,6,7],[0,4,5,1],[0,3,7,4],[1,5,6,2]].forEach((f,i)=>poly(f.map(j=>v[j]),shade(col,[.88,.78,1.12,.65,.92,1][i])))}
+function ell(x,y,z,rx,ry,rz,col,n=10,m=6){for(let j=0;j<m;j++)for(let i=0;i<n;i++){let a=i/n*Math.PI*2,b=(i+1)/n*Math.PI*2,u=j/m*Math.PI,v=(j+1)/m*Math.PI;const q=(t,p)=>[x+rx*Math.sin(t)*Math.cos(p),y+ry*Math.cos(t),z+rz*Math.sin(t)*Math.sin(p)];poly([q(u,a),q(v,a),q(v,b)],shade(col,.78+.22*Math.sin(a+1)+.10*Math.cos(u)));poly([q(u,a),q(v,b),q(u,b)],shade(col,.83+.17*Math.sin(b+1)+.10*Math.cos(v)))}}
+function line(a,b,color,width=1){const x=project(worldPoint(a)),y=project(worldPoint(b));if(x.z>.12&&y.z>.12)lines.push({a:x,b:y,color,width})}
+function cat(t,dt){
+const x=2.15,z=.22,e=t-feedStart,eating=e>=1.5&&e<4.7;
+// Loaf: low horizontal torso, paws tucked under the white bib, tail curled tight.
+ell(x,.69,z-.13,.55,.38,.79,'#7c7e72',12,7);
+for(let j=0;j<6;j++){let zz=z-.68+j*.23;for(const d of [-1,1])ell(x+d*.49,.69,zz,.062,.22,.052,'#3e4540',6,4)}
+ell(x,.64,z+.41,.40,.30,.19,'#f3f0e2',10,6);
+for(let i=0;i<10;i++){const a=i*.19;ell(x+.45*Math.cos(a),.40,z-.55-.35*Math.sin(a),.13,.085,.12,i%2?'#414842':'#87877a',7,4)}
+const targetYaw=Math.atan2(x-eye[0],z+.4-eye[2]);
+const targetPitch=Math.atan2(1.28-eye[1],Math.hypot(x-eye[0],z+.4-eye[2]));
+const watching=started&&!modalOpen()&&Math.abs(yaw-targetYaw)<.29&&Math.abs(pitch-targetPitch)<.30;
+// Local head points toward -Z. Pi faces the sea; negative angle faces the player.
+let target=(watching||state==='feed')?Math.atan2(x-eye[0],z+.4-eye[2])+Math.PI*2:Math.PI;
+headAngle+=(target-headAngle)*Math.min(1,dt*3.1);
+let cy=1.28+(eating?Math.sin(t*18)*.037:Math.sin(t*2)*.012);
+modelTransform={x,y:cy,z:z+.43,a:headAngle};
+ell(0,0,0,.58,.50,.43,'#929184',12,8);
+ell(0,-.22,-.28,.48,.27,.20,'#f0f0e6',12,6);
+// The reference cat's broad white blaze and dark M-shaped tabby forehead.
+poly([[-.13,.43,-.25],[.11,.43,-.25],[.19,.1,-.432],[.23,-.22,-.445],[-.23,-.22,-.445],[-.17,.1,-.432]],'#f4f3e9');
+for(const d of [-1,1]){
+poly([[d*.51,.21,-.04],[d*.48,.91,.035],[d*.10,.39,-.03]],'#77796b');
+poly([[d*.43,.36,-.08],[d*.46,.76,.012],[d*.22,.42,-.09]],'#c6aaa4');
+poly([[d*.14,.46,-.26],[d*.24,.42,-.30],[d*.17,.20,-.422]],'#353f39');
+poly([[d*.31,.38,-.29],[d*.38,.31,-.29],[d*.27,.18,-.418]],'#465047');
+for(let j=0;j<3;j++)poly([[d*.53,.07-j*.105,-.18],[d*.36,.04-j*.085,-.352],[d*.52,-.015-j*.105,-.20]],'#3c4943');
+ell(d*.255,-.015,-.365,.172,.188,.067,'#3d4539',10,6);
+ell(d*.255,-.015,-.414,.146,eating?.034:.161,.044,'#9bba81',12,6);
+ell(d*.255,-.015,-.451,.101,eating?.018:.124,.022,'#182d2b',10,6);
+if(!eating){ell(d*.255-.033,.034,-.474,.029,.037,.009,'#fcfff5',7,4);ell(d*.255+.027,-.058,-.474,.013,.016,.009,'#9daf9d',6,4)}
+ell(d*.12,-.236,-.424,.17,.105,.057,'#e7e4d6',9,5);
+for(let j=0;j<3;j++)line([d*.19,-.24+j*.034,-.48],[d*.66,-.26+j*.079,-.37],'#f4f0df',1);
+}
+poly([[-.096,-.168,-.486],[.096,-.168,-.486],[0,-.28,-.50]],'#343933');
+poly([[-.064,-.177,-.490],[.066,-.177,-.490],[0,-.247,-.508]],'#bc8c82');
+ell(0,-.30,-.445,.066,eating?.025+Math.abs(Math.sin(t*19))*.043:.013,.026,'#69514b',8,4);
+if(eating)ell(0,-.33,-.463,.040,.025,.022,'#d39289',8,4);
+const mouth=worldPoint([0,-.30,-.50]);modelTransform=null;
+if(e>=0&&e<1.5){const q=Math.min(1,e/1.5);ell(-.2+(mouth[0]+.2)*q,1.1+(mouth[1]-1.1)*q+Math.sin(q*Math.PI)*.7,-2+(mouth[2]+2)*q,.26*(1-q*.4),.09,.07,fish[feedFish].color,8,4)}
+if(watching&&state==='idle')$('catMood').textContent='눈이 마주쳤어요 ♡';else if(state==='idle')$('catMood').textContent='바다 보며 식빵 굽는 중';
+}
+function bucket(){const x=1.02,z=-.85,n=14;for(let i=0;i<n;i++){let a=i/n*6.283,b=(i+1)/n*6.283;const v=(ang,r,y)=>[x+Math.cos(ang)*r,y,z+Math.sin(ang)*r];poly([v(a,.27,.33),v(b,.27,.33),v(b,.37,.96),v(a,.37,.96)],shade('#cf4435',.83+.18*Math.sin(a+1)));poly([v(a,.37,.96),v(b,.37,.96),v(b,.32,.96),v(a,.32,.96)],'#f77a58');poly([v(a,.32,.96),v(b,.32,.96),v(b,.25,.40),v(a,.25,.40)],'#8d2929')}
+const bottom=[];for(let i=0;i<n;i++)bottom.push([x+Math.cos(i/n*6.283)*.25,.405,z+Math.sin(i/n*6.283)*.25]);poly(bottom,'#672b2d');
+for(let i=0;i<20;i++){let a=i/20*Math.PI,b=(i+1)/20*Math.PI;line([x+.37*Math.cos(a),.88+.48*Math.sin(a),z],[x+.37*Math.cos(b),.88+.48*Math.sin(b),z],'#494e48',3)}
+for(let i=0;i<Math.min(4,bag.reduce((a,b)=>a+b,0));i++)ell(x-.1+(i%2)*.15,.65+i*.042,z+Math.floor(i/2)*.1,.17,.04,.06,'#abc6c4',6,3);
+}
+function rod(t){let tip=[-1.65,3.65,3.6],mid=[-1.35,3.1,1.5],q=0;
+if(state==='cast'){q=Math.max(0,Math.min(1,(t-castStart)/1.25));let swing=q<.23?-Math.sin(q/.23*Math.PI/2):q<.58?-1+2.2*Math.sin((q-.23)/.35*Math.PI/2):1.2*(1-(q-.58)/.42);tip=[-1.65+swing*.34,3.65-swing*.65,3.6+swing*2.9];mid=[-1.35+swing*.13,3.1-swing*.12,1.5+swing*1.3]}
+line([-.65,.7,-3.2],mid,'#655a3e',7);line(mid,tip,'#b69564',4);ell(-.69,.92,-2.9,.13,.13,.1,'#334d4b',8,4);
+let bob=null;
+if(state==='cast'){let u=Math.max(0,(q-.27)/.73);bob=u===0?[tip[0],tip[1]-.8,tip[2]]:[-1.65+1.05*u,2.85*(1-u)+Math.sin(u*Math.PI)*2.4,1+5.5*u]}
+else if(state==='wait'||state==='bite')bob=[-.6,.08+Math.sin(t*(state==='bite'?22:2))*(state==='bite'?.12:.03),6.5];
+if(bob){const points=20;let last=tip;for(let i=1;i<=points;i++){let u=i/points,p=tip.map((v,j)=>v+(bob[j]-v)*u);p[1]-=Math.sin(u*Math.PI)*(state==='cast'?.35:.1);line(last,p,'#fff3d9b0',1);last=p}ell(...bob,.065,.15,.065,'#ed8756',8,4);ell(bob[0],bob[1]+.12,bob[2],.055,.04,.055,'#fff7dc',6,3)}else line(tip,[tip[0],tip[1]-1.5,tip[2]],'#efe6c3a0',1);
+if(state==='wait'||state==='bite'){for(let j=0;j<2;j++){let r=((t*.4+j*.4)%1)*.65+.1;for(let i=0;i<24;i++)line([-.6+Math.cos(i/24*6.283)*r,0,6.5+Math.sin(i/24*6.283)*r],[-.6+Math.cos((i+1)/24*6.283)*r,0,6.5+Math.sin((i+1)/24*6.283)*r],'#c5ded39a',1)}}
+let e=t-splashStart;if(e>=0&&e<.75){for(let i=0;i<12;i++){let a=i/12*6.283,r=.1+e*.7;ell(-.6+Math.cos(a)*r,.06+Math.sin(e/.75*Math.PI)*(.25+(i%3)*.12),6.5+Math.sin(a)*r,.035,.075,.035,'#d4eee0',5,3)}}
+}
+function render(now){const t=now/1000;let dt=Math.min(.04,(now-(render.last||now))/1000);render.last=now;if(keys.ArrowLeft)yaw-=dt*.7;if(keys.ArrowRight)yaw+=dt*.7;if(keys.ArrowUp)pitch+=dt*.5;if(keys.ArrowDown)pitch-=dt*.5;if(t<autoCat){yaw+=(.48-yaw)*dt*2.8;pitch+=(-.29-pitch)*dt*2.8}clampView();if(state==='cast'&&t-castStart>=1.25){setState('wait');splashStart=t;sfx('splash');deadline=now+2200+Math.random()*3300}if(started&&state==='wait'&&now>deadline){setState('bite');deadline=now+2800;toast('톡톡! 물고기가 물었어요!')}if(state==='bite'&&now>deadline){setState('idle');toast('앗, 놓쳤어요. 다시 던져 볼까요?')}if(state==='feed'&&t-feedStart>5)setState('idle');
+let sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#a1d1d2');sky.addColorStop(.6,'#e7e8c9');sky.addColorStop(1,'#c9dfd0');ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);polys=[];lines=[];
+// Sea: gently moving triangular facets.
+for(let z=-5;z<65;z+=3)for(let x=-55;x<55;x+=3){let h=(a,b)=>-.13+Math.sin(a*.32+b*.49+t*.8)*.045;let a=[x,h(x,z),z],b=[x+3,h(x+3,z),z],c=[x+3,h(x+3,z+3),z+3],d=[x,h(x,z+3),z+3];const n=(Math.sin(x*12.3+z*4.5)+1)/2;poly([a,b,c],shade('#54a6a4',.92+n*.15));poly([a,c,d],shade('#54a6a4',.96+n*.14))}
+for(let k=0;k<8;k++){let x=-40+k*11,z=49+(k%3)*5;poly([[x-10,-.1,z],[x-4,3+(k%3),z+2],[x+1,4+(k%2)*2,z+4],[x+9,0,z]],k%2?'#8eb3a3':'#80aaa0');poly([[x-4,3+(k%3),z+2],[x+1,4+(k%2)*2,z+4],[x+9,0,z],[x,0,z-1]],'#97b9a5')}
+// Small clouds, drawn as faceted forms.
+for(let k=0;k<5;k++)ell(-32+k*17,13+(k%2)*3,55,5.5,1.2,1.6,'#f9f4de',7,4);
+for(let i=0;i<11;i++)box(0,.20,-3.9+i*.46,3.6,.12,.218,i%2?'#b7a07d':'#c0a986');for(let x of [-3.45,3.45]){box(x,-.2,.9,.13,.85,.13,'#827d65');box(x,.25,.9,.21,.13,.21,'#cab796')}
+bucket();cat(t,dt);rod(t);
+polys.sort((a,b)=>b.z-a.z);for(const p of polys){ctx.fillStyle=p.col;ctx.beginPath();p.v.forEach((v,i)=>i?ctx.lineTo(v.x,v.y):ctx.moveTo(v.x,v.y));ctx.closePath();ctx.fill()}for(const l of lines){ctx.strokeStyle=l.color;ctx.lineWidth=l.width;ctx.beginPath();ctx.moveTo(l.a.x,l.a.y);ctx.lineTo(l.b.x,l.b.y);ctx.stroke()}
+if(t-feedStart>1.5&&t-feedStart<5){const p=project([2.15,2.8+(t-feedStart-1.5)*.13,.1]);ctx.globalAlpha=Math.min(1,5-(t-feedStart));ctx.fillStyle='#b86150';ctx.font='27px system-ui';ctx.fillText('♥',p.x,p.y);ctx.font='13px system-ui';ctx.fillText('냠냠',p.x-10,p.y+24);ctx.globalAlpha=1}
+requestAnimationFrame(render)}requestAnimationFrame(render);
+</script></body></html>
